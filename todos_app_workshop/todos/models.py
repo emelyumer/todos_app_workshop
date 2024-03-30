@@ -50,7 +50,7 @@ class Todo(models.Model):
         related_name='category'
     )
 
-    # user = models.ForeignKey(
-    #     UserModel,
-    #     on_delete=models.CASCADE,
-    # )
+    user = models.ForeignKey(
+        UserModel,
+        on_delete=models.CASCADE,
+    )
