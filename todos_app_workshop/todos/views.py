@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.core.paginator import Paginator
 from rest_framework import generics as api_views, serializers, permissions
 
 from todos_app_workshop.todos.models import Todo, Category, TodoState
@@ -22,11 +22,38 @@ class TodoListSerializer(TodoBaseSerializer):
 
 class TodoCreateSerializer(TodoBaseSerializer):
     def create(self, validated_data):
-        validated_data['user'] = self.context['request'].user
+        validated_data["user"] = self.context["request"].user
         return super().create(validated_data)
 
     class Meta(TodoBaseSerializer.Meta):
-        fields = ('title', 'description', 'category', )
+        fields = ("title", "description", "category")
+
+
+class TodoDetailsSerializer(TodoBaseSerializer):
+    def to_representation(self, instance):
+        result = super().to_representation(instance)
+
+        return {
+            **result,
+            "is_done": result["state"] == TodoState.DONE,
+        }
+
+
+class TodoDetailsUpdateApiView(api_views.RetrieveUpdateAPIView):
+    queryset = Todo.objects.all()
+    # Usually, `TodoDetailsSerializer`
+    serializer_class = TodoDetailsSerializer
+
+    def get_serializer(self, instance, data=None, partial=None):
+        if self.request.method == 'PUT':
+            data = {
+                **data,
+                "state": TodoState.DONE if data["is_done"] else TodoState.NOT_DONE,
+            }
+
+            return super().get_serializer(instance, data=data, partial=partial)
+
+        return super().get_serializer(instance)
 
 
 class TodoListCreateApiView(api_views.ListCreateAPIView):

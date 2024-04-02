@@ -41,6 +41,12 @@ const TodosList = () => {
         });
     }, [filter],)
 
+    const handleChangeState = useCallback((isDone) => {
+        setFilter({
+            ...filter, state: isDone,
+        });
+    }, [filter],)
+
     const handleShowTodoDetails = useCallback(
         async (id) => {
             setOpen(true);
@@ -102,6 +108,11 @@ const TodosList = () => {
             <Button onClick={() => handleChangeCategory('')}>All</Button>
             {categories.map(({name, id}) => (
                 <Button key={id} onClick={() => handleChangeCategory(id)}>{name}</Button>))}
+        </Stack>
+        <Stack direction='row'>
+            <Button onClick={() => handleChangeCategory(null)}>All</Button>
+            <Button onClick={() => handleChangeCategory(true)}>Done</Button>
+            <Button onClick={() => handleChangeCategory(false)}>Not done</Button>
         </Stack>
         <Grid container>
             {todos.map(todo => (<Grid item key={todo.id} xs={4}>
